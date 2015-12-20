@@ -2,15 +2,15 @@
 "
 " dicwin.vim - Dictionary window
 "
-" Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
-" Last Change:	06-Aug-2013.
-" Commands:	<C-k><C-k>  Search word under cursor.
-"		<C-k>/	    Search prompted word.
-"		<C-k>c	    Close dictionary window.
-"		<C-k>n	    Search next. (with last word)
-"		<C-k>p	    Search previous. (with last word)
-"		<C-k>w	    Jump to dictionary window (if exists)
-" Require:	&runtimepath/dict/gene.txt or &runtimepath/gene.txt
+" Maintainer:   MURAOKA Taro <koron.kaoriya@gmail.com>
+" Last Change:  13-Dec-2015.
+" Commands:     <Leader>k  Search word under cursor.
+"               <Leader>/  Search prompted word.
+"               <Leader>c  Close dictionary window.
+"               <Leader>n  Search next. (with last word)
+"               <Leader>p  Search previous. (with last word)
+"               <Leader>w  Jump to dictionary window (if exists)
+" Require:      &runtimepath/dict/gene.txt or &runtimepath/gene.txt
 "
 " URL where you can get 'gene.txt':
 "   http://www.namazu.org/~tsuchiya/sdic/data/gene.html
@@ -57,38 +57,29 @@ function! s:GlobPath(paths, target)
   end
 endfunction
 
-" Kemaps
+" Keymaps
 function! s:SetupKeymap()
-  " Evacuate g:mapleader.
-  if exists('g:mapleader')
-    let have_mapleader = 1
-    let save_mapleader = g:mapleader
+  nnoremap <silent> <Plug>(dicwin-cword)        :call <SID>OpenDictionary(g:dicwin_dictpath, expand('<cword>'))<CR>
+  inoremap <silent> <Plug>(dicwin-cword-i) <Esc>:call <SID>OpenDictionary(g:dicwin_dictpath, expand('<cword>'))<CR>a
+  nnoremap <silent> <Plug>(dicwin-next)         :call <SID>Search(g:dicwin_dictpath,         0)<CR>
+  nnoremap <silent> <Plug>(dicwin-prev)         :call <SID>Search(g:dicwin_dictpath,         1)<CR>
+  nnoremap <silent> <Plug>(dicwin-gowin)        :call <SID>GoDictWindow()<CR>
+  nnoremap <silent> <Plug>(dicwin-close)        :call <SID>Close()<CR>
+  inoremap <silent> <Plug>(dicwin-close-i) <Esc>:call <SID>Close()<CR>a
+  nnoremap <silent> <Plug>(dicwin-query)        :call <SID>Query()<CR>
+
+  if exists('g:dicwin_no_default_mappings')
+    return
   else
-    let have_mapleader = 0
-  end
-  " Change g:mapleader
-  if exists('g:dicwin_mapleader')
-    let g:mapleader = g:dicwin_mapleader
-  elseif !have_mapleader
-    let g:mapleader = "\<C-k>"
+    let g:dicwin_no_default_mappings = 0
   endif
-  " Make mappings
-  nnoremap <silent> <Leader>k :call <SID>OpenDictionary(g:dicwin_dictpath, expand('<cword>'))<CR>
-  nnoremap <silent> <Leader>n :call <SID>Search(g:dicwin_dictpath, 0)<CR>
-  nnoremap <silent> <Leader>p :call <SID>Search(g:dicwin_dictpath, 1)<CR>
-  nnoremap <silent> <Leader>w :call <SID>GoDictWindow()<CR>
-  nnoremap <silent> <Leader>c :call <SID>Close()<CR>
-  nnoremap <silent> <Leader>/ :call <SID>Query()<CR>
-  nnoremap <silent> <Leader><C-k> :call <SID>OpenDictionary(g:dicwin_dictpath, expand('<cword>'))<CR>
-  nnoremap <silent> <Leader><C-n> :call <SID>Search(g:dicwin_dictpath, 0)<CR>
-  nnoremap <silent> <Leader><C-p> :call <SID>Search(g:dicwin_dictpath, 1)<CR>
-  nnoremap <silent> <Leader><C-w> :call <SID>GoDictWindow()<CR>
-  " Revert g:mapleader
-  if have_mapleader
-    let g:mapleader = save_mapleader
-  else
-    unlet g:mapleader
-  endif
+  nmap <silent> <Leader>k <Plug>(dicwin-cword)
+  nmap <silent> <Leader>/ <Plug>(dicwin-query)
+  nmap <silent> <Leader>c <Plug>(dicwin-close)
+  nmap <silent> <Leader>n <Plug>(dicwin-next)
+  nmap <silent> <Leader>p <Plug>(dicwin-prev)
+  nmap <silent> <Leader>w <Plug>(dicwin-gowin)
+
 endfunction
 
 "
@@ -149,7 +140,7 @@ function! s:Query()
   return s:OpenDictionary(g:dicwin_dictpath, wquery)
 endfunction
 
-" 
+"
 " Close()
 "   Close window of dictionary [a:dic].
 "
