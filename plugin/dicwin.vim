@@ -43,7 +43,9 @@ function! s:DetermineDictpath()
     unlet s:dict
   endif
   " Windows return '\\' as directory separator in globpath(), replace it.
-  "let g:dicwin_dictpath = substitute(g:dicwin_dictpath, '\\', '/', 'g')
+  if has('win32') || has('win64')
+    let g:dicwin_dictpath = substitute(g:dicwin_dictpath, '\\', '/', 'g')
+  endif
 endfunction
 
 function! s:GlobPath(paths, target)
